@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yosound 佑聲音響 — 聲音顧問</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Noto+Sans+TC:wght@300;400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1614;
+    --cream: #f4efe8;
+    --warm: #e8ddd0;
+    --gold: #b8935a;
+    --gold-light: #d4aa72;
+    --rust: #8b4a2f;
+    --muted: #7a6e65;
+    --line: rgba(184,147,90,0.25);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid var(--gold-light);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.25s ease;
+    opacity: 0.6;
+  }
+  body:hover .cursor-ring { opacity: 1; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 48px;
+    mix-blend-mode: normal;
+  }
+  nav::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(26,22,20,0.95) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--cream);
+    text-decoration: none;
+    position: relative;
+  }
+  .nav-logo span {
+    color: var(--gold);
+    font-style: italic;
+  }
+  .nav-links {
+    display: flex; gap: 40px; list-style: none; position: relative;
+  }
+  .nav-links a {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--warm);
+    text-decoration: none;
+    opacity: 0.75;
+    transition: opacity 0.3s, color 0.3s;
+  }
+  .nav-links a:hover { opacity: 1; color: var(--gold-light); }
+  .nav-cta {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 10px 22px;
+    text-decoration: none;
+    position: relative;
+    transition: all 0.3s;
+    overflow: hidden;
+  }
+  .nav-cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--gold);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: -1;
+  }
+  .nav-cta:hover { color: var(--ink); }
+  .nav-cta:hover::before { transform: translateX(0); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 70% 50%, rgba(184,147,90,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(139,74,47,0.08) 0%, transparent 60%);
+  }
+  /* Vinyl record decoration */
+  .vinyl {
+    position: absolute;
+    right: -8vw; top: 50%;
+    transform: translateY(-50%);
+    width: 55vw; height: 55vw;
+    max-width: 720px; max-height: 720px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at center, #2a2420 0%, #1a1614 15%, #0f0d0c 16%, #1a1614 17%,
+        rgba(184,147,90,0.15) 45%, rgba(184,147,90,0.05) 46%,
+        #1a1614 47%, #1a1614 60%,
+        rgba(184,147,90,0.1) 61%, rgba(184,147,90,0.03) 62%,
+        #1a1614 63%, #1a1614 75%,
+        rgba(184,147,90,0.08) 76%, #1a1614 77%,
+        #1a1614 100%);
+    box-shadow:
+      0 0 80px rgba(184,147,90,0.12),
+      inset 0 0 40px rgba(0,0,0,0.5);
+    animation: spin 40s linear infinite;
+    opacity: 0.5;
+  }
+  .vinyl::after {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 8%; height: 8%;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.6;
+  }
+  @keyframes spin { from { transform: translateY(-50%) rotate(0deg); } to { transform: translateY(-50%) rotate(360deg); } }
+
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0 48px 0 80px;
+    position: relative; z-index: 2;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block; width: 40px; height: 1px;
+    background: var(--gold);
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 6vw, 88px);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+  .hero-title-zh {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: clamp(14px, 1.4vw, 20px);
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.25em;
+    margin-bottom: 48px;
+  }
+  .hero-desc {
+    font-size: 15px;
+    line-height: 2;
+    color: rgba(244,239,232,0.7);
+    max-width: 400px;
+    margin-bottom: 56px;
+    border-left: 1px solid var(--gold);
+    padding-left: 24px;
+  }
+  .hero-actions {
+    display: flex; gap: 20px; align-items: center;
+  }
+  .btn-primary {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--gold);
+    padding: 16px 36px;
+    text-decoration: none;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--gold-light);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .btn-primary:hover::after { transform: translateX(0); }
+  .btn-primary span { position: relative; z-index: 1; }
+  .btn-secondary {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cream);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+  }
+  .btn-secondary::after { content: '→'; font-size: 14px; }
+  .btn-secondary:hover { opacity: 1; }
+
+  /* scroll indicator */
+  .scroll-hint {
+    position: absolute; bottom: 40px; left: 80px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 16px;
+    z-index: 2;
+  }
+  .scroll-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  /* ── ABOUT STRIP ── */
+  .about-strip {
+    background: var(--cream);
+    color: var(--ink);
+    padding: 100px 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-left {}
+  .section-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::before {
+    content: '//';
+    opacity: 0.5;
+  }
+  .about-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 3.5vw, 54px);
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 32px;
+  }
+  .about-heading em { font-style: italic; color: var(--rust); }
+  .about-body {
+    font-size: 15px;
+    line-height: 2;
+    color: #4a3f38;
+    max-width: 480px;
+  }
+  .about-right {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+  .about-stat {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 40px 30px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .about-stat:nth-child(2) { background: var(--gold); color: var(--ink); }
+  .about-stat:nth-child(3) { background: #2a2420; }
+  .about-stat:nth-child(4) { background: var(--rust); }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 300;
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  /* ── EVENTS SECTION ── */
+  .events-section {
+    padding: 100px 80px;
+    background: var(--ink);
+    position: relative;
+    overflow: hidden;
+  }
+  .events-section::before {
+    content: 'LIVE';
+    position: absolute;
+    right: -20px; top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    font-family: 'Playfair Display', serif;
+    font-size: 180px;
+    font-weight: 300;
+    color: rgba(184,147,90,0.04);
+    pointer-events: none;
+    letter-spacing: 0.1em;
+  }
+  .events-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 60px;
+  }
+  .events-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 3.5vw, 54px);
+    font-weight: 300;
+    line-height: 1.1;
+  }
+  .events-heading em { color: var(--gold); font-style: italic; }
+  .events-subhead {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+  }
+  .view-all-link {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: gap 0.3s;
+  }
+  .view-all-link:hover { gap: 14px; }
+  .view-all-link::after { content: '→'; }
+
+  .events-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2px;
+  }
+  .event-card {
+    background: #231f1d;
+    padding: 40px;
+    display: flex; flex-direction: column;
+    min-height: 380px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.4s;
+  }
+  .event-card:first-child { min-height: 460px; }
+  .event-card::before {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .event-card:hover { background: #2e2825; }
+  .event-card:hover::before { transform: scaleX(1); }
+  .event-tag {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(184,147,90,0.3);
+    padding: 5px 12px;
+    display: inline-block;
+    margin-bottom: 24px;
+    width: fit-content;
+  }
+  .event-tag.featured { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .event-date {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .event-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    flex: 1;
+  }
+  .event-card:first-child .event-title { font-size: 38px; }
+  .event-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+  .event-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: auto;
+  }
+  .event-location {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .event-location::before { content: '◎'; color: var(--gold); }
+  .event-register {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+    transition: gap 0.3s;
+  }
+  .event-register:hover { gap: 10px; }
+  .event-register::after { content: '→'; }
+  /* upcoming placeholder */
+  .event-upcoming {
+    background: #1a1614;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px;
+    border: 1px dashed rgba(184,147,90,0.2);
+    min-height: 380px;
+  }
+  .event-upcoming-icon {
+    font-size: 32px;
+    opacity: 0.3;
+  }
+  .event-upcoming-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ── CATEGORIES ── */
+  .categories-section {
+    padding: 100px 80px;
+    background: #0f0d0c;
+  }
+  .categories-header { margin-bottom: 48px; }
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+  .cat-card {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    cursor: pointer;
+    background: #231f1d;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 32px 28px;
+  }
+  .cat-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(26,22,20,0.9) 0%, rgba(26,22,20,0.2) 60%, transparent 100%);
+    z-index: 1;
+  }
+  .cat-bg {
+    position: absolute; inset: 0;
+    background: var(--bg, #231f1d);
+    transition: transform 0.6s ease;
+  }
+  .cat-card:hover .cat-bg { transform: scale(1.05); }
+  .cat-number {
+    position: absolute; top: 24px; right: 24px;
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 300;
+    color: rgba(244,239,232,0.06);
+    line-height: 1;
+    z-index: 1;
+  }
+  .cat-content { position: relative; z-index: 2; }
+  .cat-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+  .cat-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 6px;
+  }
+  .cat-title-zh {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 11px;
+    color: var(--gold-light);
+    letter-spacing: 0.2em;
+    margin-bottom: 16px;
+  }
+  .cat-arrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all 0.3s;
+  }
+  .cat-card:hover .cat-arrow { opacity: 1; transform: translateX(0); }
+
+  /* ── BRANDS ── */
+  .brands-section {
+    padding: 80px;
+    background: var(--cream);
+    color: var(--ink);
+    overflow: hidden;
+  }
+  .brands-track-wrapper {
+    overflow: hidden;
+    -webkit-mask: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    mask: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    margin-top: 48px;
+  }
+  .brands-track {
+    display: flex; gap: 0;
+    animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+  .brands-track:hover { animation-play-state: paused; }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .brand-item {
+    padding: 0 56px;
+    border-right: 1px solid rgba(26,22,20,0.1);
+    white-space: nowrap;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    color: rgba(26,22,20,0.45);
+    transition: color 0.3s;
+    cursor: default;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .brand-item::before { content: '✦'; font-size: 8px; color: var(--gold); opacity: 0.6; }
+  .brand-item:hover { color: var(--ink); }
+
+  /* ── CONSULTATION ── */
+  .consult-section {
+    padding: 120px 80px;
+    background: var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .consult-section::before {
+    content: '';
+    position: absolute;
+    left: -200px; top: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(184,147,90,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .consult-left {}
+  .consult-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 3.5vw, 54px);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 32px;
+  }
+  .consult-heading em { color: var(--gold); font-style: italic; display: block; }
+  .consult-body {
+    font-size: 14px;
+    line-height: 2;
+    color: rgba(244,239,232,0.6);
+    margin-bottom: 48px;
+    max-width: 420px;
+  }
+  .consult-steps {
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .consult-step {
+    display: flex; gap: 20px; align-items: flex-start;
+  }
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--gold);
+    opacity: 0.5;
+    line-height: 1;
+    min-width: 40px;
+  }
+  .step-content {}
+  .step-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--cream);
+  }
+  .step-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .consult-right {
+    background: #1e1b19;
+    padding: 56px;
+    position: relative;
+  }
+  .consult-right::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--gold), var(--rust), transparent);
+  }
+  .form-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 300;
+    margin-bottom: 32px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(244,239,232,0.15);
+    color: var(--cream);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    padding: 10px 0;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-bottom-color: var(--gold);
+  }
+  .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23b8935a'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0 center; }
+  .form-textarea { resize: none; height: 80px; }
+  .form-input::placeholder, .form-textarea::placeholder { color: rgba(244,239,232,0.2); }
+  .form-select option { background: var(--ink); }
+  .submit-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 18px;
+    margin-top: 24px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .submit-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--gold);
+    transform: translateX(-100%);
+    transition: transform 0.35s ease;
+    z-index: 0;
+  }
+  .submit-btn:hover { color: var(--ink); }
+  .submit-btn:hover::before { transform: translateX(0); }
+  .submit-btn span { position: relative; z-index: 1; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #0a0908;
+    padding: 80px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    border-top: 1px solid rgba(184,147,90,0.1);
+  }
+  .footer-brand {}
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+  .footer-logo em { color: var(--gold); font-style: italic; }
+  .footer-tagline {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 260px;
+    margin-bottom: 32px;
+  }
+  .social-links {
+    display: flex; gap: 16px;
+  }
+  .social-link {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(244,239,232,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s;
+  }
+  .social-link:hover { border-color: var(--gold); color: var(--gold); }
+  .footer-col-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .footer-links a {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--cream); }
+  .footer-contact-item {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 6px;
+  }
+  .footer-contact-item a { color: var(--muted); text-decoration: none; transition: color 0.3s; }
+  .footer-contact-item a:hover { color: var(--gold-light); }
+  .footer-bottom {
+    background: #0a0908;
+    padding: 24px 80px;
+    border-top: 1px solid rgba(244,239,232,0.04);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-copy {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: rgba(122,110,101,0.5);
+  }
+
+  /* ── ANIMATIONS on load ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-eyebrow { animation: fadeInUp 0.8s ease 0.2s both; }
+  .hero-title { animation: fadeInUp 0.9s ease 0.4s both; }
+  .hero-title-zh { animation: fadeInUp 0.8s ease 0.55s both; }
+  .hero-desc { animation: fadeInUp 0.8s ease 0.7s both; }
+  .hero-actions { animation: fadeInUp 0.8s ease 0.85s both; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 120px 24px 60px; }
+    .vinyl { right: -30vw; width: 80vw; height: 80vw; opacity: 0.25; }
+    .about-strip { grid-template-columns: 1fr; padding: 60px 24px; gap: 40px; }
+    .events-section { padding: 60px 24px; }
+    .events-grid { grid-template-columns: 1fr; }
+    .categories-section { padding: 60px 24px; }
+    .categories-grid { grid-template-columns: repeat(2, 1fr); }
+    .brands-section { padding: 60px 24px; }
+    .consult-section { grid-template-columns: 1fr; padding: 60px 24px; }
+    footer { grid-template-columns: 1fr 1fr; padding: 60px 24px; }
+    .footer-bottom { padding: 20px 24px; }
+    .scroll-hint { display: none; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">Yosound <span>佑聲</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">關於我們</a></li>
+    <li><a href="#events">現場活動</a></li>
+    <li><a href="#products">商品選品</a></li>
+    <li><a href="#brands">經銷品牌</a></li>
+    <li><a href="#consult">部落格</a></li>
+  </ul>
+  <a href="#consult" class="nav-cta">預約試聽</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="vinyl"></div>
+
+  <div class="hero-left">
+    <p class="hero-eyebrow">聲音顧問 · Sound Consultant</p>
+    <h1 class="hero-title">
+      Find Your<br>
+      <em>Sound</em><br>
+      Memory
+    </h1>
+    <p class="hero-title-zh">找回屬於你的音樂記憶</p>
+    <p class="hero-desc">
+      我們不是音響商，而是幫助每個人找到屬於自己音樂記憶的聲音顧問。每一件器材，都是我們親自聆聽後才選入的。
+    </p>
+    <div class="hero-actions">
+      <a href="#products" class="btn-primary"><span>探索選品</span></a>
+      <a href="#events" class="btn-secondary">即將到來的活動</a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section class="about-strip" id="about">
+  <div class="about-left">
+    <p class="section-label">About Yosound</p>
+    <h2 class="about-heading">
+      只選能打動<br>
+      自己的<em>器材</em>
+    </h2>
+    <p class="about-body">
+      佑聲不只是一間音響店。我們是一群對聲音有著偏執熱愛的人，從歐洲、北歐精挑每一個品牌，用試聽取代說服，用體驗取代規格。走進來，讓音樂帶你回去那個時刻。
+    </p>
+  </div>
+  <div class="about-right">
+    <div class="about-stat">
+      <span class="stat-num">19+</span>
+      <span class="stat-label">頂級品牌</span>
+    </div>
+    <div class="about-stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">試聽體驗</span>
+    </div>
+    <div class="about-stat">
+      <span class="stat-num">01</span>
+      <span class="stat-label">台北旗艦店</span>
+    </div>
+    <div class="about-stat">
+      <span class="stat-num">HiFi</span>
+      <span class="stat-label">聲音美學</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── EVENTS ── -->
+<section class="events-section" id="events">
+  <div class="events-header">
+    <div>
+      <p class="section-label">Live Music & Events</p>
+      <h2 class="events-heading">現場<em>音樂</em>活動</h2>
+      <p class="events-subhead">在真實的空間裡，感受聲音的溫度</p>
+    </div>
+    <a href="#" class="view-all-link">所有活動</a>
+  </div>
+
+  <div class="events-grid">
+    <!-- Featured Event -->
+    <div class="event-card">
+      <span class="event-tag featured">Featured Event</span>
+      <p class="event-date">2025 年 9 月 20 日 · 週六 · 19:00</p>
+      <h3 class="event-title">黑膠之夜<br>Vinyl Listening Session</h3>
+      <p class="event-subtitle">
+        帶上你珍藏的黑膠唱片，或者什麼都不帶，只帶耳朵來。<br>
+        搭配 Goldmund 系統，讓音樂說它自己的故事。
+      </p>
+      <div class="event-meta">
+        <span class="event-location">台北 · 汀州路旗艦店</span>
+        <a href="#consult" class="event-register">立即報名</a>
+      </div>
+    </div>
+
+    <!-- Event 2 -->
+    <div class="event-card">
+      <span class="event-tag">Workshop</span>
+      <p class="event-date">2025 年 10 月 05 日</p>
+      <h3 class="event-title">Hi-Fi 入門<br>工作坊</h3>
+      <p class="event-subtitle">給剛踏入發燒世界的你，一個不複雜的起點。</p>
+      <div class="event-meta">
+        <span class="event-location">旗艦店</span>
+        <a href="#consult" class="event-register">報名</a>
+      </div>
+    </div>
+
+    <!-- Event 3 - Coming Soon -->
+    <div class="event-card event-upcoming">
+      <div class="event-upcoming-icon">♩</div>
+      <p class="event-upcoming-text">更多活動籌備中…</p>
+      <a href="#consult" style="font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.2em;color:var(--gold);text-decoration:none;margin-top:8px;">訂閱通知 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CATEGORIES ── -->
+<section class="categories-section" id="products">
+  <div class="categories-header">
+    <p class="section-label">Curated Collection</p>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(32px,3vw,48px);font-weight:300;line-height:1.2;">精選器材分類</h2>
+  </div>
+  <div class="categories-grid">
+    <div class="cat-card" style="--bg: linear-gradient(135deg,#2d2420 0%,#1a1614 100%)">
+      <div class="cat-bg" style="background: linear-gradient(160deg, #3a2f28 0%, #1a1614 100%)"></div>
+      <span class="cat-number">01</span>
+      <div class="cat-content">
+        <div class="cat-icon">◉</div>
+        <div class="cat-title">Speakers</div>
+        <div class="cat-title-zh">喇叭系列</div>
+        <div class="cat-arrow">探索 →</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-bg" style="background: linear-gradient(160deg, #28302a 0%, #1a1614 100%)"></div>
+      <span class="cat-number">02</span>
+      <div class="cat-content">
+        <div class="cat-icon">⊡</div>
+        <div class="cat-title">Amplifiers</div>
+        <div class="cat-title-zh">擴大機系列</div>
+        <div class="cat-arrow">探索 →</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-bg" style="background: linear-gradient(160deg, #2a2830 0%, #1a1614 100%)"></div>
+      <span class="cat-number">03</span>
+      <div class="cat-content">
+        <div class="cat-icon">⊛</div>
+        <div class="cat-title">Sources</div>
+        <div class="cat-title-zh">訊源 / 黑膠</div>
+        <div class="cat-arrow">探索 →</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-bg" style="background: linear-gradient(160deg, #302828 0%, #1a1614 100%)"></div>
+      <span class="cat-number">04</span>
+      <div class="cat-content">
+        <div class="cat-icon">⌀</div>
+        <div class="cat-title">Accessories</div>
+        <div class="cat-title-zh">線材 / 配件</div>
+        <div class="cat-arrow">探索 →</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BRANDS MARQUEE ── -->
+<section class="brands-section" id="brands">
+  <div>
+    <p class="section-label" style="color:var(--rust)">Partner Brands</p>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(28px,2.5vw,42px);font-weight:300;color:var(--ink);">世界頂級音響品牌</h2>
+  </div>
+  <div class="brands-track-wrapper">
+    <div class="brands-track">
+      <span class="brand-item">Goldmund 瑞士</span>
+      <span class="brand-item">FM Acoustics</span>
+      <span class="brand-item">Orpheus</span>
+      <span class="brand-item">Primare 瑞典</span>
+      <span class="brand-item">Vienna Acoustics</span>
+      <span class="brand-item">Jadis 法國</span>
+      <span class="brand-item">Amphion 芬蘭</span>
+      <span class="brand-item">Naim 英國</span>
+      <span class="brand-item">ARCAM</span>
+      <span class="brand-item">Mark Levinson</span>
+      <span class="brand-item">Hegel 挪威</span>
+      <span class="brand-item">Cambridge Audio</span>
+      <span class="brand-item">ATC Speakers</span>
+      <span class="brand-item">REVEL</span>
+      <span class="brand-item">Synthesis 義大利</span>
+      <!-- duplicate for seamless loop -->
+      <span class="brand-item">Goldmund 瑞士</span>
+      <span class="brand-item">FM Acoustics</span>
+      <span class="brand-item">Orpheus</span>
+      <span class="brand-item">Primare 瑞典</span>
+      <span class="brand-item">Vienna Acoustics</span>
+      <span class="brand-item">Jadis 法國</span>
+      <span class="brand-item">Amphion 芬蘭</span>
+      <span class="brand-item">Naim 英國</span>
+      <span class="brand-item">ARCAM</span>
+      <span class="brand-item">Mark Levinson</span>
+      <span class="brand-item">Hegel 挪威</span>
+      <span class="brand-item">Cambridge Audio</span>
+      <span class="brand-item">ATC Speakers</span>
+      <span class="brand-item">REVEL</span>
+      <span class="brand-item">Synthesis 義大利</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONSULTATION ── -->
+<section class="consult-section" id="consult">
+  <div class="consult-left">
+    <p class="section-label">Book a Session</p>
+    <h2 class="consult-heading">
+      親自來聽，
+      <em>才算數</em>
+    </h2>
+    <p class="consult-body">
+      每一套系統都值得親耳聆聽。我們提供一對一的試聽顧問服務，帶你找到真正屬於你的聲音。
+    </p>
+    <div class="consult-steps">
+      <div class="consult-step">
+        <span class="step-num">1</span>
+        <div class="step-content">
+          <p class="step-title">填寫預約</p>
+          <p class="step-desc">告訴我們你的喜好、預算與使用情境</p>
+        </div>
+      </div>
+      <div class="consult-step">
+        <span class="step-num">2</span>
+        <div class="step-content">
+          <p class="step-title">顧問規劃</p>
+          <p class="step-desc">我們為你準備專屬的試聽組合方案</p>
+        </div>
+      </div>
+      <div class="consult-step">
+        <span class="step-num">3</span>
+        <div class="step-content">
+          <p class="step-title">到訪體驗</p>
+          <p class="step-desc">在台北旗艦店，用耳朵做最後的決定</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="consult-right">
+    <h3 class="form-title">預約試聽體驗</h3>
+    <div class="form-group">
+      <label class="form-label">姓名 Name</label>
+      <input class="form-input" type="text" placeholder="您的姓名">
+    </div>
+    <div class="form-group">
+      <label class="form-label">聯絡電話 Phone</label>
+      <input class="form-input" type="tel" placeholder="0912-345-678">
+    </div>
+    <div class="form-group">
+      <label class="form-label">感興趣的類別</label>
+      <select class="form-select">
+        <option>喇叭系統</option>
+        <option>擴大機</option>
+        <option>黑膠系統</option>
+        <option>完整系統規劃</option>
+        <option>線材 / 配件</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">備註 Notes</label>
+      <textarea class="form-textarea" placeholder="預算範圍、使用空間、特別想聽的品牌…"></textarea>
+    </div>
+    <button class="submit-btn"><span>送出預約 →</span></button>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">
+    <div class="footer-logo">Yosound <em>佑聲</em></div>
+    <p class="footer-tagline">
+      我們不是音響商，而是幫助每個人找回屬於自己音樂記憶的聲音顧問。
+    </p>
+    <div class="social-links">
+      <a href="https://www.facebook.com/profile.php?id=61561683883836" class="social-link" target="_blank">f</a>
+      <a href="https://www.instagram.com/yosound_audio/" class="social-link" target="_blank">ig</a>
+      <a href="https://line.me/ti/p/7t241C1zxf" class="social-link" target="_blank">L</a>
+    </div>
+  </div>
+  <div>
+    <p class="footer-col-title">導覽</p>
+    <ul class="footer-links">
+      <li><a href="#about">關於我們</a></li>
+      <li><a href="#events">現場活動</a></li>
+      <li><a href="#products">商品選品</a></li>
+      <li><a href="#brands">經銷品牌</a></li>
+      <li><a href="#">部落格</a></li>
+      <li><a href="#">客戶寄賣</a></li>
+    </ul>
+  </div>
+  <div>
+    <p class="footer-col-title">品牌</p>
+    <ul class="footer-links">
+      <li><a href="#">Goldmund</a></li>
+      <li><a href="#">FM Acoustics</a></li>
+      <li><a href="#">Vienna Acoustics</a></li>
+      <li><a href="#">Naim</a></li>
+      <li><a href="#">Hegel</a></li>
+      <li><a href="#">全部品牌 →</a></li>
+    </ul>
+  </div>
+  <div>
+    <p class="footer-col-title">聯絡我們</p>
+    <p class="footer-contact-item">📞 <a href="tel:0981283063">0981-283-063</a></p>
+    <p class="footer-contact-item">Mon–Fri 11:00–19:00</p>
+    <p class="footer-contact-item">✉ <a href="mailto:yosoundaudio@gmail.com">yosoundaudio@gmail.com</a></p>
+    <p class="footer-contact-item" style="margin-top:16px;">台北市汀州路二段 234 號 1 樓</p>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span class="footer-copy">© 2025 Yosound 佑聲音響 · All Rights Reserved</span>
+  <span class="footer-copy">退款政策 · 隱私政策 · 服務條款</span>
+</div>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animateCursor() {
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  // Hover effects on links/buttons
+  document.querySelectorAll('a, button, .cat-card, .event-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+      ring.style.transform = 'translate(-50%,-50%) scale(1.5)';
+      ring.style.borderColor = 'var(--gold-light)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.borderColor = 'var(--gold-light)';
+    });
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.event-card, .cat-card, .consult-step, .about-stat').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
